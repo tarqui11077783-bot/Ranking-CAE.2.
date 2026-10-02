@@ -1,0 +1,1017 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ranking CAE • UMSA - Horario Oficial Segundo Semestre 2026</title>
+  <link rel="stylesheet" href="styles.css">
+  <meta name="description" content="Plataforma estudiantil para la consulta y calificación de docentes, asignaturas, avance de syllabus y estado de aulas. Carrera de Administración de Empresas, UMSA.">
+</head>
+<body>
+
+  <!-- BANNER DE CONTROL EXCLUSIVO DEL ADMINISTRADOR (VISIBLE EN MODO ADMIN) -->
+  <div id="admin-top-banner" class="admin-mode-banner" style="display: none;">
+    <div>
+      👑 <strong>MODO ADMINISTRADOR ACTIVO:</strong> Tienes el control total. El público puede calificar, pero <u>los comentarios de texto solo se publicarán si tú los apruebas</u>.
+    </div>
+    <button class="btn btn-secondary btn-sm" id="btn-switch-mode" style="color: #1e1b4b; font-weight: 700;">
+      👤 Cambiar a Vista Estudiante
+    </button>
+  </div>
+
+  <!-- ENCABEZADO INSTITUCIONAL -->
+  <header class="site-header">
+    <div class="header-container">
+      <div class="brand-wrapper">
+        <div class="brand-emblem" title="Universidad Mayor de San Andrés">
+          🏛️
+        </div>
+        <div class="brand-text">
+          <h1>Ranking CAE • UMSA</h1>
+          <span>Docentes, Materias & Aulas • Horario Oficial 2do Semestre 2026</span>
+        </div>
+      </div>
+
+      <!-- Barra de Estado: Consumo y Selector de Modo Público / Administrador -->
+      <div class="header-status-bar">
+        <div class="data-meter-badge" title="Consumo optimizado de datos móviles (Meta: < 5 MB)">
+          <span class="indicator-dot"></span>
+          <span id="data-meter-text">0.16 MB / 5.0 MB</span>
+        </div>
+
+        <button class="auth-badge-pill" id="auth-pill" title="Alternar entre Vista Estudiante y Modo Administrador">
+          <span id="auth-pill-text">👤 Estudiante (Público)</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Pestañas de Navegación Rápida -->
+    <nav class="main-nav">
+      <div class="nav-container">
+        <button class="nav-btn active" data-target="sec-docentes">
+          👨‍🏫 Horario & Docentes
+        </button>
+        <button class="nav-btn" data-target="sec-aulas">
+          🏫 Sensor de Aulas
+        </button>
+        <button class="nav-btn" data-target="sec-comentarios">
+          💬 Muro de Opiniones (Aprobadas)
+        </button>
+        <button class="nav-btn" data-target="sec-admin" id="tab-admin" style="display: none;">
+          🛡️ Aprobación & Moderación (Admin) <span class="badge-pending-count pending-comments-counter" style="display: none;"></span>
+        </button>
+        <button class="nav-btn" data-target="sec-sus">
+          📝 Encuesta SUS (>80 pts)
+        </button>
+        <button class="nav-btn nav-btn-subtle" data-target="sec-examenes" title="Banco de exámenes pasados">
+          📁 Exámenes
+        </button>
+      </div>
+    </nav>
+  </header>
+
+  <!-- CONTENEDOR PRINCIPAL -->
+  <main class="app-container">
+
+    <!-- BANNER INTRODUCTORIO CON INFORMACIÓN DE CALIFICACIÓN -->
+    <section class="hero-card">
+      <div class="hero-content">
+        <h2>Horario Oficial Segundo Semestre Gestión 2026</h2>
+        <p>
+          Sistema de información estudiantil de la Carrera de Administración de Empresas (UMSA).
+          Permite a los estudiantes consultar la nómina de <strong>Docentes</strong>, <strong>Materias</strong> y <strong>Aulas Asignadas</strong>, 
+          calificar el <strong>Índice de Calidad / Claridad</strong> del docente, el <strong>Cumplimiento del Syllabus (%)</strong> y las <strong>Condiciones Físicas de las Aulas</strong>.
+        </p>
+      </div>
+      <div class="hero-stats-grid">
+        <div class="stat-chip">
+          <div class="stat-number">Calidad</div>
+          <div class="stat-label">& Syllabus %</div>
+        </div>
+        <div class="stat-chip">
+          <div class="stat-number">Aulas</div>
+          <div class="stat-label">Infraestructura</div>
+        </div>
+        <div class="stat-chip">
+          <div class="stat-number">100%</div>
+          <div class="stat-label">Moderado por Admin</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================================================================== -->
+    <!-- SECCIÓN 1: HORARIO, DOCENTES, MATERIAS Y AULAS (CALIFICACIÓN COMPLETA) -->
+    <!-- ==================================================================== -->
+    <section id="sec-docentes" class="view-section active">
+      <div class="section-header-bar">
+        <div>
+          <h2 class="section-title">👨‍🏫 Horario Oficial: Docentes, Materias y Aulas Asignadas</h2>
+          <span class="section-subtitle" id="docentes-count-badge">Cargando nómina oficial...</span>
+        </div>
+      </div>
+
+      <!-- Filtros Rápidos -->
+      <div class="filter-bar">
+        <div class="search-input-wrapper">
+          <svg class="search-icon-svg" viewBox="0 0 24 24">
+            <path d="M10 2a8 8 0 015.3 14l4.7 4.7-1.4 1.4-4.7-4.7A8 8 0 1110 2zm0 2a6 6 0 100 12 6 6 0 000-12z"/>
+          </svg>
+          <input type="text" id="search-docente" class="search-input" placeholder="Buscar por Docente, Materia (ej: TIC, Finanzas) o Aula (ej: Aula E, PAB F)...">
+        </div>
+
+        <select id="filter-semestre" class="filter-select">
+          <option value="">Todos los Semestres</option>
+          <option value="1er">1er Semestre</option>
+          <option value="2do">2do Semestre</option>
+          <option value="3er">3er Semestre</option>
+          <option value="4to">4to Semestre</option>
+          <option value="5to">5to Semestre</option>
+          <option value="6to">6to Semestre</option>
+          <option value="7mo">7mo Semestre</option>
+          <option value="8vo">8vo Semestre</option>
+          <option value="9no">9no Semestre</option>
+          <option value="Idioma">Curso de Idioma</option>
+        </select>
+
+        <select id="filter-aula-doc" class="filter-select">
+          <option value="">Todas las Aulas</option>
+          <option value="Aula E">Aula E</option>
+          <option value="2A">Aula 2A</option>
+          <option value="2C">Aula 2C</option>
+          <option value="Aula A">Aula A</option>
+          <option value="Aula B">Aula B</option>
+          <option value="Aula C">Aula C</option>
+          <option value="Aula D">Aula D</option>
+          <option value="P1">Aula P1</option>
+          <option value="P2">Aula P2</option>
+          <option value="P3A">Aula P3A</option>
+          <option value="P3B-LAB">P3B-LAB</option>
+          <option value="P4">Aula P4</option>
+          <option value="PAB F">Pabellón F</option>
+          <option value="LAB MONTES">LAB MONTES</option>
+          <option value="EX AUD">EX AUD</option>
+        </select>
+
+        <select id="sort-docentes" class="filter-select">
+          <option value="puntuacion-desc">Mayor Puntuación General</option>
+          <option value="claridad-desc">Mayor Índice de Calidad / Claridad</option>
+          <option value="cumplimiento-desc">Mayor Avance de Syllabus (%)</option>
+          <option value="evals-desc">Más Evaluaciones Registradas</option>
+          <option value="nombre-asc">Nombre Alfabético</option>
+        </select>
+      </div>
+
+      <!-- Cuadrícula de Tarjetas de Docentes -->
+      <div id="docentes-grid" class="cards-grid">
+        <!-- Renderizado dinámicamente por app.js -->
+      </div>
+    </section>
+
+    <!-- ==================================================================== -->
+    <!-- SECCIÓN 2: SENSOR DE AULAS (CALIFICACIÓN DE CONDICIONES FÍSICAS) -->
+    <!-- ==================================================================== -->
+    <section id="sec-aulas" class="view-section">
+      <div class="section-header-bar">
+        <div>
+          <h2 class="section-title">🏫 Sensor de Aulas e Infraestructura (Campus UMSA)</h2>
+          <span class="section-subtitle">Calificación de condiciones de mobiliario, equipos, ventilación y alertas de ahorro energético</span>
+        </div>
+      </div>
+
+      <div class="filter-bar">
+        <div class="search-input-wrapper">
+          <svg class="search-icon-svg" viewBox="0 0 24 24">
+            <path d="M10 2a8 8 0 015.3 14l4.7 4.7-1.4 1.4-4.7-4.7A8 8 0 1110 2zm0 2a6 6 0 100 12 6 6 0 000-12z"/>
+          </svg>
+          <input type="text" id="search-aula" class="search-input" placeholder="Buscar aula (ej: Aula E, 2A, P3B-LAB, PAB F, EX AUD)...">
+        </div>
+
+        <select id="filter-piso" class="filter-select">
+          <option value="">Todos los Pisos</option>
+          <option value="Planta Baja">Planta Baja</option>
+          <option value="Piso 1">Piso 1</option>
+          <option value="Piso 2">Piso 2</option>
+          <option value="Piso 3">Piso 3</option>
+          <option value="Piso 4">Piso 4</option>
+        </select>
+
+        <select id="filter-estado" class="filter-select">
+          <option value="">Todos los Estados</option>
+          <option value="Óptimo">Óptimo</option>
+          <option value="Moderado">Moderado</option>
+          <option value="Crítico">Crítico</option>
+        </select>
+      </div>
+
+      <!-- Cuadrícula de Aulas -->
+      <div id="aulas-grid" class="cards-grid">
+        <!-- Renderizado dinámicamente por app.js -->
+      </div>
+    </section>
+
+    <!-- ==================================================================== -->
+    <!-- SECCIÓN 3: BANCO DE EXÁMENES PASADOS (SUBIR Y CONSULTAR EXÁMENES) -->
+    <!-- ==================================================================== -->
+    <section id="sec-examenes" class="view-section">
+      <div class="section-header-bar">
+        <div>
+          <h2 class="section-title">📚 Banco de Exámenes Pasados (UMSA • Administración)</h2>
+          <span class="section-subtitle" id="examenes-count-badge">Cargando repositorio de exámenes pasados...</span>
+        </div>
+        <button class="btn btn-primary" onclick="openSubirExamenModal()" style="font-weight: 700;">
+          📤 Subir Examen Pasado
+        </button>
+      </div>
+
+      <div class="callout callout-info" style="margin-bottom: 1.25rem;">
+        📖 <strong>Repositorio Colaborativo Estudiantil:</strong>
+        Aquí puedes consultar y subir exámenes pasados en <strong>PDF o fotos/imágenes</strong> de 1er a 9no semestre para prepararte mejor, conocer el estilo de evaluación de cada docente y compartir evaluaciones previas con la comunidad.
+      </div>
+
+      <!-- Input de archivo oculto para subir PDF o Imagen directamente desde la tarjeta de examen -->
+      <input type="file" id="exam-direct-file-input" style="display: none;" accept=".pdf,image/png,image/jpeg,image/jpg,image/webp">
+
+      <!-- Barra de Filtros de Exámenes -->
+      <div class="filter-bar">
+        <div class="search-input-wrapper">
+          <svg class="search-icon-svg" viewBox="0 0 24 24">
+            <path d="M10 2a8 8 0 015.3 14l4.7 4.7-1.4 1.4-4.7-4.7A8 8 0 1110 2zm0 2a6 6 0 100 12 6 6 0 000-12z"/>
+          </svg>
+          <input type="text" id="search-examen" class="search-input" placeholder="Buscar examen por materia, docente, tema (ej: Simplex, BPMN, Balance, Fayol)...">
+        </div>
+
+        <select id="filter-examen-semestre" class="filter-select">
+          <option value="">Todos los Semestres</option>
+          <option value="1er">1er Semestre</option>
+          <option value="2do">2do Semestre</option>
+          <option value="3er">3er Semestre</option>
+          <option value="4to">4to Semestre</option>
+          <option value="5to">5to Semestre</option>
+          <option value="6to">6to Semestre</option>
+          <option value="7mo">7mo Semestre</option>
+          <option value="8vo">8vo Semestre</option>
+          <option value="9no">9no Semestre</option>
+        </select>
+
+        <select id="filter-examen-tipo" class="filter-select">
+          <option value="">Todos los Tipos de Examen</option>
+          <option value="1er Parcial">1er Parcial</option>
+          <option value="2do Parcial">2do Parcial</option>
+          <option value="Examen Final">Examen Final</option>
+          <option value="Recuperatorio">Recuperatorio / Grado</option>
+        </select>
+
+        <select id="filter-examen-docente" class="filter-select">
+          <option value="">Todos los Docentes</option>
+          <!-- Poblado dinámicamente -->
+        </select>
+      </div>
+
+      <!-- Cuadrícula de Exámenes Pasados -->
+      <div id="examenes-grid" class="cards-grid">
+        <!-- Renderizado dinámicamente por app.js -->
+      </div>
+    </section>
+
+    <!-- ==================================================================== -->
+    <!-- SECCIÓN 4: MURO DE OPINIONES APROBADAS PÚBLICAMENTE -->
+    <!-- ==================================================================== -->
+    <section id="sec-comentarios" class="view-section">
+      <div class="section-header-bar">
+        <div>
+          <h2 class="section-title">💬 Muro de Opiniones y Experiencias Aprobadas</h2>
+          <span class="section-subtitle">Consejos y valoraciones verificadas por el Administrador para mantener el respeto y la convivencia</span>
+        </div>
+        <span class="badge-tag" style="background: #ecfdf5; color: #065f46; font-size: 0.85rem;" id="wall-total-count">
+          Cargando opiniones aprobadas...
+        </span>
+      </div>
+
+      <div class="callout callout-info" style="margin-bottom: 1.25rem;">
+        🛡️ <strong>Política de Transparencia y Respeto:</strong>
+        Todos los estudiantes pueden calificar a sus docentes y aulas. Los puntajes numéricos se computan al instante; sin embargo, <strong>los comentarios de texto son revisados y aprobados previamente por el Administrador</strong> para asegurar que aporten valor académico y prevenir difamaciones o ataques personales.
+      </div>
+
+      <!-- Filtro por Docente en Muro de Opiniones -->
+      <div style="margin-bottom: 1.25rem;">
+        <select id="wall-docente-select" class="filter-select" style="max-width: 480px; width: 100%;" onchange="renderComentariosWall()">
+          <option value="">-- Todos los Docentes y Asignaturas --</option>
+        </select>
+      </div>
+
+      <!-- Feed de Comentarios Aprobados -->
+      <div id="comentarios-feed-container">
+        <!-- Renderizado por app.js -->
+      </div>
+    </section>
+
+    <!-- ==================================================================== -->
+    <!-- SECCIÓN 4: BANDEJA DE APROBACIÓN & PANEL ADMINISTRATIVO (ADMIN) -->
+    <!-- ==================================================================== -->
+    <section id="sec-admin" class="view-section">
+      <div class="section-header-bar">
+        <div>
+          <h2 class="section-title">🛡️ Bandeja de Aprobación de Comentarios & Panel Administrativo</h2>
+          <span class="section-subtitle">Como Administrador, tú decides qué comentarios se publican y cuáles se descartan</span>
+        </div>
+      </div>
+
+      <!-- Tarjetas KPI -->
+      <div class="kpi-grid">
+        <div class="kpi-card">
+          <span class="kpi-title">Comentarios por Aprobar</span>
+          <div class="kpi-value" id="kpi-moderacion-val" style="color: #b91c1c;">0</div>
+          <span class="kpi-target pending">⏳ En espera de tu visto bueno</span>
+        </div>
+
+        <div class="kpi-card">
+          <span class="kpi-title">Centralización Docente</span>
+          <div class="kpi-value" id="kpi-centralizacion-val">100%</div>
+          <span class="kpi-target achieved">🎯 Meta: 100% de la oferta</span>
+        </div>
+
+        <div class="kpi-card">
+          <span class="kpi-title">Satisfacción Usabilidad (SUS)</span>
+          <div class="kpi-value" id="kpi-sus-val">87.5 pts</div>
+          <span class="kpi-target achieved">🎯 Meta: > 80 (Nivel Excelente)</span>
+        </div>
+
+        <div class="kpi-card">
+          <span class="kpi-title">Consumo de Red Móvil</span>
+          <div class="kpi-value" id="kpi-consumo-val">0.16 MB</div>
+          <span class="kpi-target achieved">🎯 Meta: &lt; 5 MB por consulta</span>
+        </div>
+      </div>
+
+      <!-- BANDEJA DE COMENTARIOS PENDIENTES (APROBACIÓN EXCLUSIVA DEL ADMIN) -->
+      <div style="background: white; border: 2px solid var(--secondary); border-radius: var(--radius); padding: 1.5rem; margin-bottom: 1.5rem; box-shadow: var(--shadow-sm);">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem; flex-wrap: wrap; gap: 0.5rem;">
+          <h3 style="color: var(--primary); font-size: 1.15rem; display: flex; align-items: center; gap: 0.5rem;">
+            📥 Bandeja de Comentarios Pendientes de tu Aprobación
+          </h3>
+          <span class="status-pill status-moderado">Aprobación previa activa</span>
+        </div>
+        <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1.25rem;">
+          Los estudiantes han registrado las siguientes calificaciones y opiniones. <strong>Ningún comentario será visible en la web hasta que hagas clic en "Aprobar y Publicar".</strong>
+        </p>
+
+        <div class="table-responsive">
+          <table class="styled-table">
+            <thead>
+              <tr>
+                <th>ID / Tipo</th>
+                <th>Destinatario</th>
+                <th>Calificación y Comentario Escrito</th>
+                <th>Estado</th>
+                <th style="min-width: 170px;">Decisión Administrativa</th>
+              </tr>
+            </thead>
+            <tbody id="admin-moderacion-tbody">
+              <!-- Renderizado por app.js -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- HISTORIAL DE COMENTARIOS YA APROBADOS (CON OPCIÓN DE DESPUBLICAR) -->
+      <div style="background: white; border: 1px solid var(--border); border-radius: var(--radius); padding: 1.25rem; margin-bottom: 1.5rem;">
+        <h3 style="color: var(--primary); font-size: 1.05rem; margin-bottom: 0.5rem;">
+          ✔️ Comentarios Aprobados y Visibles Públicamente
+        </h3>
+        <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 1rem;">
+          Si algún comentario previamente aprobado resulta inapropiado o el docente solicita su revisión, puedes retirarlo de la vista pública en cualquier momento.
+        </p>
+        <div class="table-responsive">
+          <table class="styled-table">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Docente / Destinatario</th>
+                <th>Comentario Publicado</th>
+                <th>Estado</th>
+                <th>Acción</th>
+              </tr>
+            </thead>
+            <tbody id="admin-aprobados-tbody">
+              <!-- Renderizado por app.js -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- MATRIZ DE INCIDENCIAS DEL PILOTO -->
+      <div style="background: white; border: 1px solid var(--border); border-radius: var(--radius); padding: 1.25rem;">
+        <h3 style="color: var(--primary); font-size: 1.05rem; margin-bottom: 0.5rem;">
+          📋 Matriz de Incidencias y Control de Calidad (Fase 6.5)
+        </h3>
+        <div class="table-responsive">
+          <table class="styled-table">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Incidencia</th>
+                <th>Módulo</th>
+                <th>Severidad</th>
+                <th>Estado</th>
+                <th>Solución Implementada</th>
+              </tr>
+            </thead>
+            <tbody id="admin-incidencias-tbody">
+              <!-- Renderizado por app.js -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================================================================== -->
+    <!-- SECCIÓN 5: ENCUESTA DE USABILIDAD SUS (FASE 7.3) -->
+    <!-- ==================================================================== -->
+    <section id="sec-sus" class="view-section">
+      <div class="section-header-bar">
+        <div>
+          <h2 class="section-title">📝 Encuesta de Usabilidad (System Usability Scale - SUS)</h2>
+          <span class="section-subtitle">Evaluación de facilidad de uso (Meta SMART: > 80 puntos - Nivel Excelente)</span>
+        </div>
+      </div>
+
+      <div class="callout callout-info">
+        <strong>Metodología de Medición (Fase 7.3):</strong>
+        Esta escala estándar consta de 10 preguntas con respuestas de 1 (Desacuerdo total) a 5 (Totalmente de acuerdo). Las preguntas impares suman <code>(puntuación - 1)</code> y las pares suman <code>(5 - puntuación)</code>. El total se multiplica por 2.5 para obtener un puntaje final de 0 a 100.
+      </div>
+
+      <div id="sus-result-box" style="display: none; margin-bottom: 1rem;"></div>
+
+      <form id="form-sus-survey">
+        <div id="sus-questions-container">
+          <!-- Generado por app.js -->
+        </div>
+
+        <div style="margin-top: 1.5rem; text-align: right;">
+          <button type="submit" class="btn btn-primary">
+            📊 Calcular y Registrar Puntuación SUS
+          </button>
+        </div>
+      </form>
+    </section>
+
+  </main>
+
+  <!-- ==================================================================== -->
+  <!-- MODALES DE CALIFICACIÓN -->
+  <!-- ==================================================================== -->
+
+  <!-- Modal 1: Calificar Calidad Docente y Avance de Syllabus -->
+  <div id="modal-calificar-docente" class="modal-overlay">
+    <div class="modal-box">
+      <div class="modal-header">
+        <div>
+          <h3 class="modal-title" id="eval-doc-title-name">Calificar Docente</h3>
+          <span id="eval-doc-subtitle-materia" style="font-size: 0.78rem; color: #cbd5e1; display: block;">Materia</span>
+        </div>
+        <button class="modal-close-btn" onclick="closeModal('modal-calificar-docente')">&times;</button>
+      </div>
+
+      <form id="form-calificar-docente">
+        <div class="modal-body">
+          <div class="scroll-helper-hint">
+            <span>↕️</span>
+            <span>Desplázate hacia abajo para revisar y calificar todos los criterios (Calidad, Syllabus, Metodología y Comentarios).</span>
+          </div>
+
+          <div class="callout callout-info" style="margin-bottom: 1rem; padding: 0.75rem 1rem;">
+            🛡️ <strong>Tu calificación es anónima:</strong> Los puntajes de calidad y avance de syllabus se computan al instante. Si dejas un comentario, <strong>el administrador lo revisará antes de publicarlo</strong> para evitar faltas de respeto.
+          </div>
+
+          <!-- Calificación General -->
+          <div class="form-group">
+            <label class="form-label">1. Valoración General del Docente:</label>
+            <div class="star-rating-input" id="stars-eval-doc-general" data-input-id="input-eval-doc-general">
+              <span class="star active" data-value="1">★</span>
+              <span class="star active" data-value="2">★</span>
+              <span class="star active" data-value="3">★</span>
+              <span class="star active" data-value="4">★</span>
+              <span class="star active" data-value="5">★</span>
+            </div>
+            <input type="hidden" id="input-eval-doc-general" value="5">
+          </div>
+
+          <!-- Índice de Calidad / Claridad Explicativa -->
+          <div class="form-group">
+            <label class="form-label">2. Índice de Calidad / Claridad Explicativa:</label>
+            <div class="star-rating-input" id="stars-eval-doc-claridad" data-input-id="input-eval-doc-claridad">
+              <span class="star active" data-value="1">★</span>
+              <span class="star active" data-value="2">★</span>
+              <span class="star active" data-value="3">★</span>
+              <span class="star active" data-value="4">★</span>
+              <span class="star active" data-value="5">★</span>
+            </div>
+            <input type="hidden" id="input-eval-doc-claridad" value="5">
+            <div class="form-help">Evalúa el dominio conceptual, la claridad al explicar y la resolución de dudas en clases.</div>
+          </div>
+
+          <!-- Avance del Syllabus (%) -->
+          <div class="form-group">
+            <label class="form-label">3. Nivel de Cumplimiento del Syllabus (Programa Académico):</label>
+            <div class="range-slider-wrap">
+              <input type="range" id="eval-doc-syllabus-slider" class="range-slider" min="50" max="100" step="1" value="95">
+              <span id="eval-doc-syllabus-badge" class="range-value-badge">95%</span>
+            </div>
+            <div class="form-help">Porcentaje aproximado del contenido del programa que el docente efectivamente desarrolla en el semestre.</div>
+          </div>
+
+          <!-- Metodología -->
+          <div class="form-group">
+            <label class="form-label">4. Metodología de Enseñanza Predominante:</label>
+            <select id="eval-doc-metodologia" class="form-control" required>
+              <option value="Casos de Estudio">Casos de Estudio (Análisis práctico de empresas)</option>
+              <option value="Práctico">Práctico (Resolución de guías numéricas y ejercicios)</option>
+              <option value="Expositivo">Expositivo (Teórico y clases magistrales)</option>
+              <option value="Proyectos">Proyectos y Planes de Negocio</option>
+              <option value="Dinámico">Dinámico (Debates y talleres grupales)</option>
+            </select>
+          </div>
+
+          <!-- Comentario Opcional con Aprobación del Admin -->
+          <div class="form-group">
+            <label class="form-label">5. Comentario u Observación (Opcional):</label>
+            <textarea id="eval-doc-comentario" class="form-control" rows="3" placeholder="Comparte cómo son sus exámenes, ritmo de clase y recomendaciones para tus compañeros..."></textarea>
+            <div class="form-help">
+              ⚠️ <em>Nota de moderación:</em> Los comentarios de texto son moderados por el Administrador antes de publicarse. No se toleran insultos ni ofensas personales.
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" onclick="closeModal('modal-calificar-docente')">Cancelar</button>
+          <button type="submit" class="btn btn-primary">Registrar Calificación</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal 2: Calificar Estado Físico del Aula -->
+  <div id="modal-calificar-aula" class="modal-overlay">
+    <div class="modal-box">
+      <div class="modal-header" style="background-color: #0f2d59;">
+        <div>
+          <h3 class="modal-title">Calificar Estado del Aula</h3>
+          <span id="eval-aula-title-name" style="font-size: 0.78rem; color: #cbd5e1; display: block;">Aula</span>
+        </div>
+        <button class="modal-close-btn" onclick="closeModal('modal-calificar-aula')">&times;</button>
+      </div>
+
+      <form id="form-calificar-aula">
+        <div class="modal-body">
+          <div class="scroll-helper-hint">
+            <span>↕️</span>
+            <span>Desplázate hacia abajo para calificar mobiliario, equipos, ventilación, impacto ecológico y enviar tu reporte.</span>
+          </div>
+
+          <div class="callout callout-info" style="margin-bottom: 1rem; padding: 0.75rem 1rem;">
+            🏫 <strong>Sensor Comunitario de Infraestructura:</strong> Tus calificaciones ayudan a identificar salones que requieren mantenimiento y mejoras urgentes.
+          </div>
+
+          <!-- Calificación General del Aula -->
+          <div class="form-group">
+            <label class="form-label">1. Calificación General del Aula:</label>
+            <div class="star-rating-input" id="stars-eval-aula-general" data-input-id="input-eval-aula-general">
+              <span class="star active" data-value="1">★</span>
+              <span class="star active" data-value="2">★</span>
+              <span class="star active" data-value="3">★</span>
+              <span class="star active" data-value="4">★</span>
+              <span class="star active" data-value="5">★</span>
+            </div>
+            <input type="hidden" id="input-eval-aula-general" value="5">
+          </div>
+
+          <!-- Mobiliario / Asientos -->
+          <div class="form-group">
+            <label class="form-label">2. Estado del Mobiliario y Asientos:</label>
+            <div class="star-rating-input" id="stars-eval-aula-mobiliario" data-input-id="input-eval-aula-mobiliario">
+              <span class="star active" data-value="1">★</span>
+              <span class="star active" data-value="2">★</span>
+              <span class="star active" data-value="3">★</span>
+              <span class="star active" data-value="4">★</span>
+              <span class="star active" data-value="5">★</span>
+            </div>
+            <input type="hidden" id="input-eval-aula-mobiliario" value="5">
+            <div class="form-help">¿Los pupitres están firmes, limpios y completos?</div>
+          </div>
+
+          <!-- Equipamiento y Tomas -->
+          <div class="form-group">
+            <label class="form-label">3. Equipamiento (Data Display, Tomas Eléctricas, Pizarra):</label>
+            <div class="star-rating-input" id="stars-eval-aula-equipos" data-input-id="input-eval-aula-equipos">
+              <span class="star active" data-value="1">★</span>
+              <span class="star active" data-value="2">★</span>
+              <span class="star active" data-value="3">★</span>
+              <span class="star active" data-value="4">★</span>
+              <span class="star active" data-value="5">★</span>
+            </div>
+            <input type="hidden" id="input-eval-aula-equipos" value="5">
+          </div>
+
+          <!-- Ventilación y Clima -->
+          <div class="form-group">
+            <label class="form-label">4. Ventilación, Temperatura e Iluminación:</label>
+            <div class="star-rating-input" id="stars-eval-aula-ventilacion" data-input-id="input-eval-aula-ventilacion">
+              <span class="star active" data-value="1">★</span>
+              <span class="star active" data-value="2">★</span>
+              <span class="star active" data-value="3">★</span>
+              <span class="star active" data-value="4">★</span>
+              <span class="star active" data-value="5">★</span>
+            </div>
+            <input type="hidden" id="input-eval-aula-ventilacion" value="5">
+          </div>
+
+          <!-- Checkbox Eco -->
+          <div class="form-group">
+            <label class="checkbox-card eco-alert">
+              <input type="checkbox" id="eval-aula-eco-check">
+              <div>
+                <strong style="color: #065f46;">🌱 Sensor de Impacto Ecológico</strong>
+                <p style="font-size: 0.75rem; color: #1e293b; margin-top: 0.15rem;">
+                  Marcar si este salón tiene luces que quedan encendidas sin uso, goteras o pérdidas de energía para reducir la huella ambiental.
+                </p>
+              </div>
+            </label>
+          </div>
+
+          <!-- Comentario del Aula -->
+          <div class="form-group">
+            <label class="form-label">5. Comentario u Observación del Salón (Opcional):</label>
+            <textarea id="eval-aula-comentario" class="form-control" rows="2" placeholder="Ej: Fila 4 tiene enchufes sin corriente; buena acústica pero poco aire..."></textarea>
+            <div class="form-help">Pasa por revisión del Administrador antes de publicarse.</div>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" onclick="closeModal('modal-calificar-aula')">Cancelar</button>
+          <button type="submit" class="btn btn-primary">Registrar Calificación del Aula</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal 3: Reporte de Falla Técnica de Infraestructura -->
+  <div id="modal-reporte-aula" class="modal-overlay">
+    <div class="modal-box">
+      <div class="modal-header" style="background-color: #065f46;">
+        <h3 class="modal-title">📢 Sensor Comunitario: Reportar Falla Técnica</h3>
+        <button class="modal-close-btn" onclick="closeModal('modal-reporte-aula')">&times;</button>
+      </div>
+      <form id="form-reportar-aula">
+        <div class="modal-body">
+          <div class="form-group">
+            <label class="form-label">Aula a Reportar:</label>
+            <div id="report-aula-name" style="font-weight: 700; color: var(--primary); font-size: 1.1rem;">Aula</div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Categoría del Desperfecto:</label>
+            <select id="rep-categoria" class="form-control" required>
+              <option value="Mobiliario">Mobiliario (Pupitres rotos, tableros desgastados)</option>
+              <option value="Eléctrico">Instalaciones Eléctricas (Enchufes sin corriente, focos)</option>
+              <option value="Estructural">Infraestructura Estructural (Goteras, ventanas desajustadas)</option>
+              <option value="Equipos">Equipos (Data display / proyector HDMI, sonido)</option>
+              <option value="Otros">Otros problemas de mantenimiento</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Nivel de Severidad:</label>
+            <select id="rep-severidad" class="form-control" required>
+              <option value="Leve">Leve (Molestia menor, permite continuar la clase)</option>
+              <option value="Moderado">Moderado (Incomodidad o falla parcial)</option>
+              <option value="Crítico">Crítico (Impide la clase o representa riesgo eléctrico/físico)</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label class="checkbox-card eco-alert">
+              <input type="checkbox" id="rep-eco-impact">
+              <div>
+                <strong style="color: #065f46;">🌱 Desperdicio Ecológico de Recursos</strong>
+                <p style="font-size: 0.75rem; color: #1e293b; margin-top: 0.15rem;">
+                  Marcar si representa fuga de agua/gotera o luces que no se apagan.
+                </p>
+              </div>
+            </label>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Descripción Precisa:</label>
+            <textarea id="rep-descripcion" class="form-control" placeholder="Describe la falla observada..." required></textarea>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" onclick="closeModal('modal-reporte-aula')">Cancelar</button>
+          <button type="submit" class="btn btn-eco">Enviar Reporte de Falla</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal 4: Perfil Detallado de Docente -->
+  <div id="modal-docente-detail" class="modal-overlay">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h3 class="modal-title" id="docente-modal-title">Perfil Docente</h3>
+        <button class="modal-close-btn" onclick="closeModal('modal-docente-detail')">&times;</button>
+      </div>
+      <div class="modal-body" id="docente-modal-content">
+        <!-- Renderizado dinámicamente -->
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="closeModal('modal-docente-detail')">Cerrar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal 5: Subir Examen Pasado -->
+  <div id="modal-subir-examen" class="modal-overlay">
+    <div class="modal-box" style="max-width: 620px;">
+      <div class="modal-header" style="background-color: var(--primary);">
+        <h3 class="modal-title">📤 Subir Examen Pasado al Repositorio UMSA</h3>
+        <button class="modal-close-btn" onclick="closeModal('modal-subir-examen')">&times;</button>
+      </div>
+      <form id="form-subir-examen">
+        <div class="modal-body">
+          <div class="callout callout-info" style="margin-bottom: 1rem; font-size: 0.82rem;">
+            📚 <strong>Aporte Colaborativo Estudiantil:</strong> Comparte exámenes de gestiones anteriores para ayudar a la comunidad a preparar sus materias.
+          </div>
+
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem;">
+            <div class="form-group">
+              <label class="form-label">1. Semestre:</label>
+              <select id="subir-exam-semestre" class="form-control" required onchange="populateSubirMateriaDocenteSelects()">
+                <option value="1er Semestre">1er Semestre</option>
+                <option value="2do Semestre">2do Semestre</option>
+                <option value="3er Semestre">3er Semestre</option>
+                <option value="4to Semestre">4to Semestre</option>
+                <option value="5to Semestre">5to Semestre</option>
+                <option value="6to Semestre">6to Semestre</option>
+                <option value="7mo Semestre" selected>7mo Semestre</option>
+                <option value="8vo Semestre">8vo Semestre</option>
+                <option value="9no Semestre">9no Semestre</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">2. Gestión / Año:</label>
+              <select id="subir-exam-gestion" class="form-control" required>
+                <option value="I/2026">I/2026</option>
+                <option value="II/2025" selected>II/2025</option>
+                <option value="I/2025">I/2025</option>
+                <option value="II/2024">II/2024</option>
+                <option value="I/2024">I/2024</option>
+                <option value="II/2023">II/2023</option>
+                <option value="I/2023">I/2023</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">3. Asignatura / Materia:</label>
+            <input type="text" id="subir-exam-materia" class="form-control" placeholder="Ej: TIC-703 TIC III / FIN-504 FINANZAS I" required list="list-materias-suggest">
+            <datalist id="list-materias-suggest"></datalist>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">4. Docente Titular:</label>
+            <input type="text" id="subir-exam-docente" class="form-control" placeholder="Ej: HERETTHY QUISPE CLIVE" required list="list-docentes-suggest">
+            <datalist id="list-docentes-suggest"></datalist>
+          </div>
+
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem;">
+            <div class="form-group">
+              <label class="form-label">5. Instancia de Evaluación:</label>
+              <select id="subir-exam-tipo" class="form-control" required>
+                <option value="1er Parcial">1er Parcial</option>
+                <option value="2do Parcial">2do Parcial</option>
+                <option value="Examen Final">Examen Final</option>
+                <option value="Recuperatorio">Recuperatorio / 2do Turno</option>
+                <option value="Examen de Grado">Examen de Grado</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">6. Modalidad:</label>
+              <select id="subir-exam-modalidad" class="form-control">
+                <option value="Presencial (Escrito)">Presencial (Escrito)</option>
+                <option value="Laboratorio / Práctico">Laboratorio / Práctico</option>
+                <option value="Caso de Negocio">Caso de Negocio</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">7. Temas / Unidades Evaluadas:</label>
+            <input type="text" id="subir-exam-temas" class="form-control" placeholder="Ej: Modelos BPMN, Diagramas de Flujo, Big Data, Indicadores KPI" required>
+            <div class="form-help">Breve resumen de temas que entraron en la prueba.</div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">8. Enunciados / Preguntas del Examen (Opcional si subes PDF o Imagen):</label>
+            <textarea id="subir-exam-preguntas" class="form-control" rows="3" placeholder="Escribe aquí las preguntas o transcribe los ejercicios (opcional si adjuntas la foto o PDF del examen abajo)"></textarea>
+            <div class="form-help">Si adjuntas la foto o PDF, puedes dejar este campo vacío o escribir un resumen.</div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">9. Subir Archivo PDF o Imagen (Recomendado):</label>
+            <input type="file" id="subir-exam-file" class="form-control" accept=".pdf,image/png,image/jpeg,image/jpg,image/webp">
+            <div class="form-help">📎 Sube el documento escaneado en <strong>PDF</strong> o una foto clara (<strong>PNG, JPG</strong>) del examen.</div>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" onclick="closeModal('modal-subir-examen')">Cancelar</button>
+          <button type="submit" class="btn btn-primary" style="font-weight: 700;">📤 Publicar Examen en el Repositorio</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal 6: Ver Examen Pasado (Simulador de Documento) -->
+  <div id="modal-ver-examen" class="modal-overlay">
+    <div class="modal-box" style="max-width: 720px;">
+      <div class="modal-header" style="background-color: var(--primary);">
+        <h3 class="modal-title" id="ver-exam-modal-title">📄 Examen Pasado Oficial</h3>
+        <button class="modal-close-btn" onclick="closeModal('modal-ver-examen')">&times;</button>
+      </div>
+      <div class="modal-body" id="ver-exam-modal-body" style="background-color: #f1f5f9; padding: 1.5rem;">
+        <!-- Hoja de examen renderizada dinámicamente -->
+      </div>
+      <div class="modal-footer" style="display: flex; justify-content: space-between; align-items: center;">
+        <button type="button" class="btn btn-secondary" onclick="closeModal('modal-ver-examen')">Cerrar</button>
+        <div style="display: flex; gap: 0.5rem;">
+          <button type="button" class="btn btn-secondary" onclick="imprimirExamenActual()">🖨️ Imprimir</button>
+          <button type="button" class="btn btn-primary" id="btn-descargar-examen-pdf" onclick="descargarExamenActual()">📥 Descargar Examen (.txt / PDF)</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal 7: Modificar Datos y Calificaciones del Docente (Admin) -->
+  <div id="modal-admin-edit-docente" class="modal-overlay">
+    <div class="modal-box">
+      <div class="modal-header" style="background: linear-gradient(135deg, #1e1b4b 0%, #312e81 100%);">
+        <div>
+          <h3 class="modal-title">👑 Modificar Datos y Calificaciones del Docente</h3>
+          <span style="font-size: 0.75rem; color: #fde047;">Panel de Control Administrativo</span>
+        </div>
+        <button class="modal-close-btn" onclick="closeModal('modal-admin-edit-docente')">&times;</button>
+      </div>
+      <form id="form-admin-edit-docente">
+        <input type="hidden" id="admin-edit-doc-id">
+        <div class="modal-body">
+          <div class="form-group">
+            <label class="form-label">Nombre del Docente:</label>
+            <input type="text" id="admin-edit-doc-nombre" class="form-control" required>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Asignatura(s):</label>
+            <input type="text" id="admin-edit-doc-materia" class="form-control" required>
+          </div>
+
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem;">
+            <div class="form-group">
+              <label class="form-label">Aula(s) Asignada(s):</label>
+              <input type="text" id="admin-edit-doc-aula" class="form-control" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Semestre:</label>
+              <input type="text" id="admin-edit-doc-semestre" class="form-control" required>
+            </div>
+          </div>
+
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem;">
+            <div class="form-group">
+              <label class="form-label">Índice de Calidad / Claridad (1.0 - 5.0):</label>
+              <input type="number" id="admin-edit-doc-claridad" class="form-control" min="1.0" max="5.0" step="0.1" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Puntuación General (1.0 - 5.0):</label>
+              <input type="number" id="admin-edit-doc-general" class="form-control" min="1.0" max="5.0" step="0.1" required>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Avance del Syllabus (% Cumplimiento):</label>
+            <div class="range-slider-wrap">
+              <input type="range" id="admin-edit-doc-syllabus" class="range-slider" min="40" max="100" step="1" oninput="document.getElementById('admin-edit-doc-syllabus-val').textContent = this.value + '%'">
+              <span id="admin-edit-doc-syllabus-val" class="range-value-badge">95%</span>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Descripción Académica:</label>
+            <textarea id="admin-edit-doc-desc" class="form-control" rows="2"></textarea>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" onclick="closeModal('modal-admin-edit-docente')">Cancelar</button>
+          <button type="submit" class="btn btn-primary" style="background-color: #3730a3;">💾 Guardar Cambios Administrativos</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal 8: Modificar Parámetros del Aula (Admin) -->
+  <div id="modal-admin-edit-aula" class="modal-overlay">
+    <div class="modal-box">
+      <div class="modal-header" style="background: linear-gradient(135deg, #065f46 0%, #047857 100%);">
+        <div>
+          <h3 class="modal-title">👑 Modificar Parámetros del Aula</h3>
+          <span style="font-size: 0.75rem; color: #a7f3d0;">Sensor Comunitario • Control Admin</span>
+        </div>
+        <button class="modal-close-btn" onclick="closeModal('modal-admin-edit-aula')">&times;</button>
+      </div>
+      <form id="form-admin-edit-aula">
+        <input type="hidden" id="admin-edit-aula-id">
+        <div class="modal-body">
+          <div class="form-group">
+            <label class="form-label">ID Aula:</label>
+            <input type="text" id="admin-edit-aula-nombre" class="form-control" disabled>
+          </div>
+
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem;">
+            <div class="form-group">
+              <label class="form-label">Ubicación:</label>
+              <input type="text" id="admin-edit-aula-ubicacion" class="form-control" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Estado Físico:</label>
+              <select id="admin-edit-aula-estado" class="form-control" required>
+                <option value="Óptimo">Óptimo</option>
+                <option value="Moderado">Moderado</option>
+                <option value="Crítico">Crítico</option>
+              </select>
+            </div>
+          </div>
+
+          <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0.5rem;">
+            <div class="form-group">
+              <label class="form-label">Mobiliario (1-5):</label>
+              <input type="number" id="admin-edit-aula-mob" class="form-control" min="1.0" max="5.0" step="0.1" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Equipos (1-5):</label>
+              <input type="number" id="admin-edit-aula-eq" class="form-control" min="1.0" max="5.0" step="0.1" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Ventilación (1-5):</label>
+              <input type="number" id="admin-edit-aula-vent" class="form-control" min="1.0" max="5.0" step="0.1" required>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Alerta Ecológica / Eco-Sensor:</label>
+            <input type="text" id="admin-edit-aula-eco" class="form-control" placeholder="Ej: Ninguna / Fuga de agua reparada...">
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" onclick="closeModal('modal-admin-edit-aula')">Cancelar</button>
+          <button type="submit" class="btn btn-eco">💾 Guardar Parámetros de Aula</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- PIE DE PÁGINA ACADÉMICO -->
+  <footer class="site-footer">
+    <div class="footer-content">
+      <div class="footer-section">
+        <h4>🏛️ Universidad Mayor de San Andrés</h4>
+        <p>Facultad de Ciencias Económicas y Financieras</p>
+        <p>Carrera de Administración de Empresas</p>
+        <p><strong>Horario Oficial Segundo Semestre Gestión 2026</strong></p>
+      </div>
+
+      <div class="footer-section">
+        <h4>👤 Ficha Técnica del Proyecto</h4>
+        <p>Docente: <strong>Lic. Clive Heretthy Quispe</strong></p>
+        <p>Estudiante: <strong>Joel Sandro Tarqui Mamani</strong></p>
+        <p>C.I.: 11077783 • La Paz - Bolivia</p>
+      </div>
+
+      <div class="footer-section">
+        <h4>🛡️ Control de Calidad y Moderación</h4>
+        <p>• Calificación de Calidad y Cumplimiento de Syllabus</p>
+        <p>• Calificación del Estado Físico de las Aulas</p>
+        <p>• Aprobación previa obligatoria de comentarios por el Administrador</p>
+        <p>• Arquitectura ligera (&lt; 5 MB de consumo)</p>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      &copy; 2026 Sistema de Información Estudiantil • "Ranking CAE" • UMSA
+    </div>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>
